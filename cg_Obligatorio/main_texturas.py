@@ -44,18 +44,9 @@ def main():
             model_animation.parse(path)
             animation.append(model_animation)
         animations.append(animation)
-        #print(animations)
         animations.clear
 
     animation_index = 0
-
-    rangeAn = 6
-
-    for i in range(rangeAn):
-        modelAn = Obj("model ani #" + str(i))
-        path = "./knight_animado/knight_run_"+str(i)+".obj"
-        modelAn.parse(path)
-        modelAnimation.append(modelAn)
 
     smallIndex = 0
     index = 0
@@ -64,6 +55,8 @@ def main():
     glActiveTexture(GL_TEXTURE0)
     text = loadTexture("./knight_good.png")
     textB = loadTexture("./knight.png")
+    texts = [text, textB]
+    text_index = 0
 
     glShadeModel(GL_SMOOTH)
 
@@ -89,10 +82,6 @@ def main():
     glRotatef(0, 0, 0, 1)
     glRotatef(270, 1, 0, 0)
 
-    ground_model = Obj("ground model")
-    ground_path = "./groundS.obj"
-    # ground_model.parse(ground_path)
-
     ground_vertices = ((-250, -250, -25), (250, -250, -25),
                        (-250, 250, -25), (250, 250, -25))
     ground_surfaces = (0, 1, 2, 3)
@@ -105,6 +94,8 @@ def main():
     bfc = False
     bfcCW = True
     end = False
+    flat = False
+    l0 = True
 
     x = -50
     y = 0
@@ -144,6 +135,20 @@ def main():
                         glFrontFace(GL_CW)
                     else:
                         glFrontFace(GL_CCW)
+                if event.key == pygame.K_l:
+                    l0 = not l0
+                    if(l0):
+                        glEnable(GL_LIGHT0)
+                    else:
+                        glDisable(GL_LIGHT0)
+                if event.key == pygame.K_f:
+                    flat = not flat
+                    if(flat):
+                        glShadeModel(GL_FLAT)
+                    else:
+                        glShadeModel(GL_SMOOTH)
+                if event.key == pygame.K_t:
+                    text_index = (text_index + 1) % 2
 
                 if event.key == pygame.K_w:
                     movingX = False
@@ -184,6 +189,9 @@ def main():
                 if event.key == pygame.K_RIGHT:
                     rotatingZ = True
                     az = 1
+                if event.key == pygame.K_LEFT:
+                    rotatingZ = True
+                    az = -1
                 if event.key == pygame.K_0:
                     animation_index = 0
                 if event.key == pygame.K_1:
@@ -225,7 +233,7 @@ def main():
             index += 1
             smallIndex = 0
 
-        if(index >= rangeAn):
+        if(index >= animations_frames[animation_index]):
             index = 0
 
 #        index = 4
@@ -248,16 +256,9 @@ def main():
         glVertexPointer(3, GL_FLOAT, 0, animations[animation_index][index].drawV)
         glNormalPointer(GL_FLOAT, 0, animations[animation_index][index].drawN)
         glTexCoordPointer(2, GL_FLOAT, 0, animations[animation_index][index].drawT)
-        glBindTexture(GL_TEXTURE_2D, text)
+        glBindTexture(GL_TEXTURE_2D, texts[text_index])
         glDrawArrays(GL_TRIANGLES, 0, len(animations[animation_index][index].faces))
         glBindTexture(GL_TEXTURE_2D, 0)
-        
-#        glVertexPointer(3, GL_FLOAT, 0, modelAnimation[index].drawV)
-#        glNormalPointer(GL_FLOAT, 0, modelAnimation[index].drawN)
-#        glTexCoordPointer(2, GL_FLOAT, 0, modelAnimation[index].drawT)
-#        glBindTexture(GL_TEXTURE_2D, text)
-#        glDrawArrays(GL_TRIANGLES, 0, len(modelAnimation[index].faces))
-#        glBindTexture(GL_TEXTURE_2D, 0)
 
         glDisableClientState(GL_VERTEX_ARRAY)
         glDisableClientState(GL_NORMAL_ARRAY)
@@ -265,9 +266,8 @@ def main():
 
         pygame.display.flip()
 
-    glDeleteTextures([text])
+    glDeleteTextures([texts[text_index]])
     pygame.quit()
     quit()
-
 
 main()
