@@ -65,9 +65,40 @@ def main():
     pygame.display.set_mode(display, DOUBLEBUF|OPENGL)
 
     #print glGetString(GL_SHADING_LANGUAGE_VERSION)
-    model = Obj("a")
+    model = Obj("static model")
     path = "./knight_stand_0.obj"
     model.parse(path)
+
+"""    modelAnimation = []
+
+    model1 = Obj("static model")
+    path = "./knight_animado/knight_stand_0.obj"
+    model1.parse(path)
+    model2 = Obj("static model")
+    path = "./knight_animado/knight_stand_1.obj"
+    model2.parse(path)
+    model3 = Obj("static model")
+    path = "./knight_animado/knight_stand_2.obj"
+    model3.parse(path)
+    model4 = Obj("static model")
+    path = "./knight_animado/knight_stand_3.obj"
+    model4.parse(path)
+    model5 = Obj("static model")
+    path = "./knight_animado/knight_stand_4.obj"
+    model5.parse(path)
+
+    modelAnimation.append(model1)
+    modelAnimation.append(model2)
+    modelAnimation.append(model3)
+    modelAnimation.append(model4)
+    modelAnimation.append(model5) """
+
+
+#    for i in range(5):
+#        modelAn = Obj("model ani #" + str(i))
+#        pathAn = "./knight_animado/knight_stand_"+str(i)+".obj"
+#        modelAn.parse(pathAn)
+#        modelAnimation.append(modelAn)
 
     #Creo un programa de shading y guardo la referencia en la variable gouraud
 #    gouraud = createShader("./shaders/gouraud_2020_vp.glsl",

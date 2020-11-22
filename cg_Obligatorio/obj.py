@@ -1,16 +1,14 @@
 class Obj:
 
-    v = [[0.0,0.0,0.0]]
-    vn = [[0.0,0.0,0.0]]
-    vt = [[0.0,0.0,0.0]]
-    faces = []
-#    drawData = []
-    drawV = []
-    drawN = []
-    drawT = []
-
     def __init__(self, name):
         self.name = name
+        self.v = [[0.0,0.0,0.0]]
+        self.vn = [[0.0,0.0,0.0]]
+        self.vt = [[0.0,0.0,0.0]]
+        self.faces = []
+        self.drawV = []
+        self.drawN = []
+        self.drawT = []
 
     def parse(self, path):
         f = open(path, "r")

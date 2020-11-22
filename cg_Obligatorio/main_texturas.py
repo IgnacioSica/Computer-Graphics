@@ -44,13 +44,23 @@ def main():
     display = (1200,1200)
     pygame.display.set_mode(display, DOUBLEBUF|OPENGL)
 
-    model = Obj("a")
-    path = "./knight_stand_0.obj"
-    model.parse(path)
-
     #Creo un programa de shading y guardo la referencia en la variable gouraud
 #    gouraud = createShader("./shaders/gouraud_vs.hlsl", "./shaders/gouraud_fs.hlsl")
     
+    modelAnimation = []
+
+    rangeAn = 6
+
+    for i in range(rangeAn):
+        modelAn = Obj("model ani #" + str(i))
+        path = "./knight_animado/knight_run_"+str(i)+".obj"
+        print(path)
+        modelAn.parse(path)
+        modelAnimation.append(modelAn)
+
+    smallIndex = 0
+    index = 0
+
     #Activo el manejo de texturas
     glEnable(GL_TEXTURE_2D)
     #Activo la textura 0 (hay 8 disponibles)
@@ -122,26 +132,33 @@ def main():
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         glTranslatef(0.0,0.0,-50)
-        glRotatef(ang, 0, 1, 0)
-        glRotatef(ang, 0, 0, 1)
-#        glRotatef(ang, 1, 0, 0)
-        ang += 0.5
+        glRotatef(250, 0, 1, 0)
+        glRotatef(0, 0, 0, 1)
+        glRotatef(270, 1, 0, 0)
+#        ang = 0.5
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+
+        smallIndex += 1
+        if(smallIndex == 5):
+            index += 1
+            smallIndex = 0
         
+        if(index == rangeAn):
+            index = 0
+
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_NORMAL_ARRAY)
         #Habilito el array de coordenadas de textura
         glEnableClientState(GL_TEXTURE_COORD_ARRAY)
 
-        glVertexPointer(3, GL_FLOAT, 0, model.drawV)
-        glNormalPointer(GL_FLOAT, 0, model.drawN)
-        #Paso la lista de coordenadas de textura para cada vertice
-        glTexCoordPointer(2, GL_FLOAT, 0, model.drawT)
+        glVertexPointer(3, GL_FLOAT, 0, modelAnimation[index].drawV)
+        glNormalPointer(GL_FLOAT, 0, modelAnimation[index].drawN)
+        glTexCoordPointer(2, GL_FLOAT, 0, modelAnimation[index].drawT)
 
         #Cargo la textura "text" en la posicion activa (que es la 0 en este ejemplo)
         glBindTexture(GL_TEXTURE_2D, text)
 
-        glDrawArrays(GL_TRIANGLES, 0, len(model.faces))
+        glDrawArrays(GL_TRIANGLES, 0, len(modelAnimation[index].faces))
 
         #Luego de dibujar, desactivo la textura
         glBindTexture(GL_TEXTURE_2D, 0)
