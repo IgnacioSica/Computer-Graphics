@@ -60,17 +60,25 @@ def main():
 
     glShadeModel(GL_SMOOTH)
 
-    glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, [1, 0, 0, 1])
-    glMaterial(GL_FRONT_AND_BACK, GL_AMBIENT, [1, 0, 0, 1])
+    glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, [1, 1, 1, 1])
+    glMaterial(GL_FRONT_AND_BACK, GL_AMBIENT, [0, 0, 0, 1])
     glMaterial(GL_FRONT_AND_BACK, GL_SPECULAR, [1, 1, 1, 1])
     glMaterial(GL_FRONT_AND_BACK, GL_SHININESS, 16)
 
     glEnable(GL_LIGHT0)
 
     glLight(GL_LIGHT0, GL_DIFFUSE, [1, 1, 1, 1])
-    glLight(GL_LIGHT0, GL_AMBIENT, [0.1, 0.1, 0.1, 1])
+    glLight(GL_LIGHT0, GL_AMBIENT, [0, 0, 0, 3])
     glLight(GL_LIGHT0, GL_POSITION, [0, 0, 0, 1])
     glLight(GL_LIGHT0, GL_SPECULAR, [1, 1, 1, 1])
+
+    glLight(GL_LIGHT1, GL_DIFFUSE, [1, 1, 1, 1])
+    glLight(GL_LIGHT1, GL_AMBIENT, [1, 1, 1, 1])
+    glLight(GL_LIGHT1, GL_POSITION, [0, 0, 0, 1])
+    glLight(GL_LIGHT1, GL_SPECULAR, [1, 1, 1, 1])
+
+    glEnable ( GL_COLOR_MATERIAL ) ;
+    glPointSize(10)
 
     glEnable(GL_DEPTH_TEST)
 
@@ -139,8 +147,10 @@ def main():
                     l0 = not l0
                     if(l0):
                         glEnable(GL_LIGHT0)
+                        glDisable(GL_LIGHT1)
                     else:
                         glDisable(GL_LIGHT0)
+                        glEnable(GL_LIGHT1)
                 if event.key == pygame.K_f:
                     flat = not flat
                     if(flat):
@@ -263,6 +273,21 @@ def main():
         glDisableClientState(GL_VERTEX_ARRAY)
         glDisableClientState(GL_NORMAL_ARRAY)
         glDisableClientState(GL_TEXTURE_COORD_ARRAY)
+
+        glPushMatrix()
+        ang += 1.0
+        glRotatef(ang, 0,0,1)
+        glTranslatef(0,30,0)
+        #Dibujo un punto para mostrar donde está la fuente de luz
+        glDisable(GL_LIGHTING)
+        glBegin(GL_POINTS)
+        glVertex3fv([0,30,0])
+        glEnd()
+        glEnable(GL_LIGHTING)
+        #Al setear la posción de la luz, esta se multiplica por el contenido de la matrix MODELVIEW, haciendo que la fuente de luz se mueva
+        glLightfv(GL_LIGHT0, GL_POSITION, [0,0,0,1])
+        #Vuelvo al estado anterior de la matriz, para dibujar el modelo
+        glPopMatrix()
 
         pygame.display.flip()
 
