@@ -33,8 +33,8 @@ def main():
     modelAnimation = []
     
     animations = []
-    animations_title = ["run", "stand", "crouch_stand", "fallback", "jump", "wave", "point"]
-    animations_frames = [6,40,19,17,6,11,12]
+    animations_title = ["stand", "run", "crouch_stand", "fallback", "jump", "wave", "point"]
+    animations_frames = [40,6,19,17,6,11,12]
 
     for i in range(7):
         animation = []
@@ -87,13 +87,13 @@ def main():
     glFrustum(-1, 1, -1, 1, 1, 1000)
 
     glRotatef(270, 0, 1, 0)
-    glRotatef(0, 0, 0, 1)
+    glRotatef(330, 0, 0, 1)
     glRotatef(270, 1, 0, 0)
 
-    ground_vertices = ((-250, -250, -25), (250, -250, -25),
-                       (-250, 250, -25), (250, 250, -25))
+    ground_vertices = ((-25000, -25000, -25), (25000, -25000, -25),
+                       (-25000, 25000, -25), (25000, 25000, -25))
     ground_surfaces = (0, 1, 2, 3)
-    ground_vt = ((0, 0), (0, 40), (40, 40), (40, 0))
+    ground_vt = ((0, 0), (0, 400), (400, 400), (400, 0))
     ground_texture = loadTexture("./ground.jpg")
 
     ang = 0.0
@@ -105,12 +105,13 @@ def main():
     flat = False
     l0 = True
 
-    x = -50
+    x = -100
     y = 0
+    z = -60
+    tz = 0
     rz = 0
-    ry = 0
-    movingX = movingY = rotatingY = rotatingZ = False
-    tx = ty = az = ay = 0
+    movingX = movingY = movingZ = rotatingZ = moving = False
+    tx = ty = az = dx = 0
 
     while not end:
         for event in pygame.event.get():
@@ -169,9 +170,9 @@ def main():
                 if event.key == pygame.K_a:
                     movingY = False
                 if event.key == pygame.K_UP:
-                    rotatingY = False
+                    movingZ = False
                 if event.key == pygame.K_DOWN:
-                    rotatingY = False
+                    movingZ = False
                 if event.key == pygame.K_RIGHT:
                     rotatingZ = False
                 if event.key == pygame.K_LEFT:
@@ -191,37 +192,43 @@ def main():
                     movingY = True
                     ty = -1
                 if event.key == pygame.K_UP:
-                    rotatingY = True
-                    ay = 1
+                    movingZ = True
+                    tz = 1
                 if event.key == pygame.K_DOWN:
-                    rotatingY = True
-                    ay = -1
+                    movingZ = True
+                    tz = -1
                 if event.key == pygame.K_RIGHT:
                     rotatingZ = True
                     az = 1
                 if event.key == pygame.K_LEFT:
                     rotatingZ = True
                     az = -1
-                if event.key == pygame.K_0:
-                    animation_index = 0
                 if event.key == pygame.K_1:
+                    animation_index = 0
+                    moving = False
+                if event.key == pygame.K_r:
                     animation_index = 1
+                    moving = True
                 if event.key == pygame.K_2:
                     animation_index = 2
+                    moving = False
                 if event.key == pygame.K_3:
                     animation_index = 3
+                    moving = False
                 if event.key == pygame.K_4:
                     animation_index = 4
+                    moving = False
                 if event.key == pygame.K_5:
                     animation_index = 5
+                    moving = False
                 if event.key == pygame.K_6:
                     animation_index = 6
+                    moving = False
 
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-        glTranslatef(x, y, 0)
+        glTranslatef(x, y, z)
         glRotatef(rz, 0, 0, 1)
-        glRotatef(ry, 0, 1, 0)
 
         if movingX:
             x = x + tx * .6
@@ -229,12 +236,12 @@ def main():
         if movingY:
             y = y + ty * .6
             glTranslatef(0, ty * .6, 0)
+        if movingZ:
+            z = z + tz * .6
+            glTranslatef(0, tz * .6, 0)
         if rotatingZ:
             rz = rz + az * 2
             glRotatef(az * 2, 0, 0, 1)
-        if rotatingY:
-            ry = ry + ay * 2
-            glRotatef(ay * 2, 0, 1, 0)
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -247,17 +254,6 @@ def main():
             index = 0
 
 #        index = 4
-
-        glEnableClientState(GL_VERTEX_ARRAY)
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
-
-        glVertexPointer(3, GL_FLOAT, 0, ground_vertices)
-        glTexCoordPointer(2, GL_FLOAT, 0, ground_vt)
-        glBindTexture(GL_TEXTURE_2D, ground_texture)
-        glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, ground_surfaces)
-
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY)
-        glDisableClientState(GL_VERTEX_ARRAY)
 
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_NORMAL_ARRAY)
@@ -275,18 +271,34 @@ def main():
         glDisableClientState(GL_TEXTURE_COORD_ARRAY)
 
         glPushMatrix()
+        if not moving:
+            dx = 0
+        if moving:
+            dx -= 5
+            glTranslatef(dx,0,0)
+
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+
+        glVertexPointer(3, GL_FLOAT, 0, ground_vertices)
+        glTexCoordPointer(2, GL_FLOAT, 0, ground_vt)
+        glBindTexture(GL_TEXTURE_2D, ground_texture)
+        glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, ground_surfaces)
+
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY)
+        glDisableClientState(GL_VERTEX_ARRAY)
+        glPopMatrix()
+        
+        glPushMatrix()
         ang += 1.0
         glRotatef(ang, 0,0,1)
         glTranslatef(0,30,0)
-        #Dibujo un punto para mostrar donde está la fuente de luz
         glDisable(GL_LIGHTING)
         glBegin(GL_POINTS)
         glVertex3fv([0,30,0])
         glEnd()
         glEnable(GL_LIGHTING)
-        #Al setear la posción de la luz, esta se multiplica por el contenido de la matrix MODELVIEW, haciendo que la fuente de luz se mueva
         glLightfv(GL_LIGHT0, GL_POSITION, [0,0,0,1])
-        #Vuelvo al estado anterior de la matriz, para dibujar el modelo
         glPopMatrix()
 
         pygame.display.flip()
