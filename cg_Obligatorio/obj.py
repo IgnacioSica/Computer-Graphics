@@ -2,11 +2,12 @@ class Obj:
 
     v = [[0.0,0.0,0.0]]
     vn = [[0.0,0.0,0.0]]
-    vt = []
+    vt = [[0.0,0.0,0.0]]
     faces = []
     drawData = []
     drawV = []
     drawN = []
+    drawT = []
 
     def __init__(self, name):
         self.name = name
@@ -40,4 +41,4 @@ class Obj:
         for f in self.faces:
             self.drawV.append(self.v[f[0]])
             self.drawN.append(self.vn[f[1]])
-            self.drawData.append(self.vt[f[2]])
+            self.drawT.append(self.vt[f[2]])

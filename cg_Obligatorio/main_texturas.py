@@ -23,7 +23,7 @@ def compileProgram(path, type):
     #En este caso le pido el stado de la ultima compilacion ejecutada
     if glGetShaderiv(shader, GL_COMPILE_STATUS) != GL_TRUE:
         #Si la compilacion falla, muestro el error y retorno 0 (shader nulo)
-        print path + ': ' + glGetShaderInfoLog(shader)
+#        print path + ': ' + glGetShaderInfoLog(shader)
         #Me aseguro de liberar los recursos que reserve en memoria de vide, ya que no los voy a usar
         glDeleteShader(shader)
         return 0
@@ -48,7 +48,7 @@ def createShader(vSource, fSource):
     #Chequeo si la ejecucion del linkeo del programa fue exitosa
     if glGetProgramiv(shader, GL_LINK_STATUS) != GL_TRUE:
         #Si falla, imprimo el mensaje de error y libero los recursos
-        print glGetProgramInfoLog(shader)
+#        print glGetProgramInfoLog(shader)
         glDeleteProgram(shader)
         return 0
     #Una vez que el programa fue linkeado, haya sido exitoso o no, ya no necesito los shaders
@@ -101,8 +101,7 @@ def main():
     model.parse(path)
 
     #Creo un programa de shading y guardo la referencia en la variable gouraud
-    gouraud = createShader("./shaders/gouraud_vs.hlsl",
-                           "./shaders/gouraud_fs.hlsl")
+#    gouraud = createShader("./shaders/gouraud_vs.hlsl", "./shaders/gouraud_fs.hlsl")
     
     #Activo el manejo de texturas
     glEnable(GL_TEXTURE_2D)
@@ -112,7 +111,7 @@ def main():
     text = loadTexture("./knight.png")
 
     #Para el shader, me guardo una referencia a la variable que representa a la textura
-    unifTextura = glGetUniformLocation(gouraud, 'textura')
+#    unifTextura = glGetUniformLocation(gouraud, 'textura')
 
     glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, [1,0,0,1])
     glMaterial(GL_FRONT_AND_BACK, GL_AMBIENT, [1,0,0,1])
@@ -171,11 +170,11 @@ def main():
                         glFrontFace(GL_CCW)
                 if event.key == pygame.K_l:
                     light = not light
-                    if(light):
+#                    if(light):
                         #Con la tecla L habilito y deshabilito el shader
-                        glUseProgram(gouraud)
-                    else:
-                        glUseProgram(0)
+#                        glUseProgram(gouraud)
+#                    else:
+#                        glUseProgram(0)
 
                 elif event.key == pygame.K_ESCAPE:
                     end = True
@@ -192,32 +191,29 @@ def main():
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_NORMAL_ARRAY)
         #Habilito el array de coordenadas de textura
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+#        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
 
-        glVertexPointer(3, GL_FLOAT, 0, model.vertices)
-        glNormalPointer(GL_FLOAT, 0, model.normales)
+        glVertexPointer(3, GL_FLOAT, 0, model.drawV)
+        glNormalPointer(GL_FLOAT, 0, model.drawN)
         #Paso la lista de coordenadas de textura para cada vertice
-        glTexCoordPointer(2, GL_FLOAT, 0, model.textCoords)
+#        glTexCoordPointer(2, GL_FLOAT, 0, model.drawT)
 
-        if(light):
-            #Si estoy usando shaders, le digo que la textura es la que esta activa en la posicion 0 (de las 8 disponibles)
-            glUniform1ui(unifTextura, 0)
         #Cargo la textura "text" en la posicion activa (que es la 0 en este ejemplo)
         glBindTexture(GL_TEXTURE_2D, text)
 
         glDrawArrays(GL_TRIANGLES, 0, len(model.faces) * 3)
-        
+
         #Luego de dibujar, desactivo la textura
         glBindTexture(GL_TEXTURE_2D, 0)
 
         glDisableClientState(GL_VERTEX_ARRAY)
         glDisableClientState(GL_NORMAL_ARRAY)
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY)
+#        glDisableClientState(GL_TEXTURE_COORD_ARRAY)
 
         pygame.display.flip()
     
     #Cuando salgo del loop, antes de cerrar el programa libero todos los recursos creados
-    glDeleteProgram(gouraud)
+#    glDeleteProgram(gouraud)
     glDeleteTextures([text])
     pygame.quit()
     quit()
