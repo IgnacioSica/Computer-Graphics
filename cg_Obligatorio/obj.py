@@ -4,7 +4,7 @@ class Obj:
     vn = [[0.0,0.0,0.0]]
     vt = [[0.0,0.0,0.0]]
     faces = []
-    drawData = []
+#    drawData = []
     drawV = []
     drawN = []
     drawT = []

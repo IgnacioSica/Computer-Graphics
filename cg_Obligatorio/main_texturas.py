@@ -3,60 +3,8 @@ from pygame.locals import *
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL.GL.shaders import *
+
 from obj import *
-
-#Uso esta funcion para compilar de forma individual el codigo de cada componente del shader (vertex y fragment)
-#Le paso el path al archivo y el tipo de shader (GL_VERTEX_SHADER o GL_FRAGMENT_SHADER)
-def compileProgram(path, type):
-    #Leo el codigo fuente desde el archivo
-    sourceFile = open(path, "r")
-    source = sourceFile.read()
-    #Creo un shader vacio en memoria de video, del tipo indicado
-    #En la variable shader queda almacenado un indice que nos va a permitir identificar este shader de ahora en mas
-    shader = glCreateShader(type)
-    #Le adjunto el codigo fuente leido desde el archivo
-    glShaderSource(shader, source)
-    #Intento compilarlo
-    glCompileShader(shader)
-    #Con la funcion glGelShaderiv puedo obtener el estado del compilador de shaders
-    #En este caso le pido el stado de la ultima compilacion ejecutada
-    if glGetShaderiv(shader, GL_COMPILE_STATUS) != GL_TRUE:
-        #Si la compilacion falla, muestro el error y retorno 0 (shader nulo)
-#        print path + ': ' + glGetShaderInfoLog(shader)
-        #Me aseguro de liberar los recursos que reserve en memoria de vide, ya que no los voy a usar
-        glDeleteShader(shader)
-        return 0
-    else:
-        return shader
-
-#Esta funcion me permite crear un programa de shading completo, basado en un vertex y un fragment shader
-#Le paso el path a ambos codigos fuentes
-def createShader(vSource, fSource):
-    #Creo y compilo el vertex shader
-    vProgram = compileProgram(vSource, GL_VERTEX_SHADER)
-    #Creo y compilo el fragment shader
-    fProgram = compileProgram(fSource, GL_FRAGMENT_SHADER)
-    #Creo un programa de shading vacio en memoria de video
-    shader = glCreateProgram()
-    #Le adjunto el codigo objeto del vertex shader compilado
-    glAttachShader(shader, vProgram)
-    #Le adjunto el codigo objeto del fragment shader compilado
-    glAttachShader(shader, fProgram)
-    #Intento linkear el programa para generar un ejecutable en memoria de video
-    glLinkProgram(shader)
-    #Chequeo si la ejecucion del linkeo del programa fue exitosa
-    if glGetProgramiv(shader, GL_LINK_STATUS) != GL_TRUE:
-        #Si falla, imprimo el mensaje de error y libero los recursos
-#        print glGetProgramInfoLog(shader)
-        glDeleteProgram(shader)
-        return 0
-    #Una vez que el programa fue linkeado, haya sido exitoso o no, ya no necesito los shaders
-    #individuales compilados, asi que libero sus recursos
-    glDeleteShader(vProgram)
-    glDeleteShader(fProgram)
-
-    return shader
 
 def loadTexture(path):
     #Cargo la imagen a memoria. pygame se hace cargo de decodificarla correctamente
@@ -108,7 +56,7 @@ def main():
     #Activo la textura 0 (hay 8 disponibles)
     glActiveTexture(GL_TEXTURE0)
     #Llamo a la funcion que levanta la textura a memoria de video
-    text = loadTexture("./knight.png")
+    text = loadTexture("./knight_good.png")
 
     #Para el shader, me guardo una referencia a la variable que representa a la textura
 #    unifTextura = glGetUniformLocation(gouraud, 'textura')
@@ -136,7 +84,7 @@ def main():
     zBuffer = True
     bfc = False
     bfcCW = True
-    light = False
+#    light = False
     end = False
 
     while not end:
@@ -168,52 +116,43 @@ def main():
                         glFrontFace(GL_CW)
                     else:
                         glFrontFace(GL_CCW)
-                if event.key == pygame.K_l:
-                    light = not light
-#                    if(light):
-                        #Con la tecla L habilito y deshabilito el shader
-#                        glUseProgram(gouraud)
-#                    else:
-#                        glUseProgram(0)
-
                 elif event.key == pygame.K_ESCAPE:
                     end = True
                     
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-        glTranslatef(0.0,0.0,-2)
+        glTranslatef(0.0,0.0,-50)
         glRotatef(ang, 0, 1, 0)
         glRotatef(ang, 0, 0, 1)
-        glRotatef(ang, 1, 0, 0)
+#        glRotatef(ang, 1, 0, 0)
         ang += 0.5
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_NORMAL_ARRAY)
         #Habilito el array de coordenadas de textura
-#        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
 
         glVertexPointer(3, GL_FLOAT, 0, model.drawV)
         glNormalPointer(GL_FLOAT, 0, model.drawN)
         #Paso la lista de coordenadas de textura para cada vertice
-#        glTexCoordPointer(2, GL_FLOAT, 0, model.drawT)
+        glTexCoordPointer(2, GL_FLOAT, 0, model.drawT)
 
         #Cargo la textura "text" en la posicion activa (que es la 0 en este ejemplo)
         glBindTexture(GL_TEXTURE_2D, text)
 
-        glDrawArrays(GL_TRIANGLES, 0, len(model.faces) * 3)
+        glDrawArrays(GL_TRIANGLES, 0, len(model.faces))
 
         #Luego de dibujar, desactivo la textura
         glBindTexture(GL_TEXTURE_2D, 0)
 
         glDisableClientState(GL_VERTEX_ARRAY)
         glDisableClientState(GL_NORMAL_ARRAY)
-#        glDisableClientState(GL_TEXTURE_COORD_ARRAY)
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY)
 
         pygame.display.flip()
     
     #Cuando salgo del loop, antes de cerrar el programa libero todos los recursos creados
-#    glDeleteProgram(gouraud)
     glDeleteTextures([text])
     pygame.quit()
     quit()

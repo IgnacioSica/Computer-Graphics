@@ -17,6 +17,6 @@ def main():
     path = "./knight_stand_0.obj"
     model.parse(path)
 
-    print(model.faces)
+    print(model.drawT)
 
 main()
