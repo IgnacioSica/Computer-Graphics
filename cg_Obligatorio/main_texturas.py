@@ -1,4 +1,3 @@
-import numpy
 import pygame
 from pygame.locals import *
 
@@ -6,7 +5,6 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 from obj import *
-
 
 def loadTexture(path):
     surf = pygame.image.load(path)
@@ -31,16 +29,19 @@ def main():
     pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
 
     modelAnimation = []
-    
+
     animations = []
-    animations_title = ["stand", "run", "crouch_stand", "fallback", "jump", "wave", "point"]
-    animations_frames = [40,6,19,17,6,11,12]
+    animations_title = ["stand", "run", "crouch_stand",
+                        "fallback", "jump", "wave", "point"]
+    animations_frames = [40, 6, 19, 17, 6, 11, 12]
 
     for i in range(7):
         animation = []
         for j in range(animations_frames[i]):
-            model_animation = Obj("model " + animations_title[i] + " # " + str(j))
-            path = "./knight_animado/knight_"+animations_title[i]+"_"+str(j)+".obj"
+            model_animation = Obj(
+                "model " + animations_title[i] + " # " + str(j))
+            path = "./knight_animado/knight_" + \
+                animations_title[i]+"_"+str(j)+".obj"
             model_animation.parse(path)
             animation.append(model_animation)
         animations.append(animation)
@@ -77,7 +78,7 @@ def main():
     glLight(GL_LIGHT1, GL_POSITION, [0, 0, 0, 1])
     glLight(GL_LIGHT1, GL_SPECULAR, [1, 1, 1, 1])
 
-    glEnable ( GL_COLOR_MATERIAL ) ;
+    glEnable(GL_COLOR_MATERIAL)
     glPointSize(10)
 
     glEnable(GL_DEPTH_TEST)
@@ -259,11 +260,14 @@ def main():
         glEnableClientState(GL_NORMAL_ARRAY)
         glEnableClientState(GL_TEXTURE_COORD_ARRAY)
 
-        glVertexPointer(3, GL_FLOAT, 0, animations[animation_index][index].drawV)
+        glVertexPointer(
+            3, GL_FLOAT, 0, animations[animation_index][index].drawV)
         glNormalPointer(GL_FLOAT, 0, animations[animation_index][index].drawN)
-        glTexCoordPointer(2, GL_FLOAT, 0, animations[animation_index][index].drawT)
+        glTexCoordPointer(
+            2, GL_FLOAT, 0, animations[animation_index][index].drawT)
         glBindTexture(GL_TEXTURE_2D, texts[text_index])
-        glDrawArrays(GL_TRIANGLES, 0, len(animations[animation_index][index].faces))
+        glDrawArrays(GL_TRIANGLES, 0, len(
+            animations[animation_index][index].faces))
         glBindTexture(GL_TEXTURE_2D, 0)
 
         glDisableClientState(GL_VERTEX_ARRAY)
@@ -275,7 +279,7 @@ def main():
             dx = 0
         if moving:
             dx -= 5
-            glTranslatef(dx,0,0)
+            glTranslatef(dx, 0, 0)
 
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_TEXTURE_COORD_ARRAY)
@@ -288,17 +292,17 @@ def main():
         glDisableClientState(GL_TEXTURE_COORD_ARRAY)
         glDisableClientState(GL_VERTEX_ARRAY)
         glPopMatrix()
-        
+
         glPushMatrix()
         ang += 1.0
-        glRotatef(ang, 0,0,1)
-        glTranslatef(0,30,0)
+        glRotatef(ang, 0, 0, 1)
+        glTranslatef(0, 30, 0)
         glDisable(GL_LIGHTING)
         glBegin(GL_POINTS)
-        glVertex3fv([0,30,0])
+        glVertex3fv([0, 30, 0])
         glEnd()
         glEnable(GL_LIGHTING)
-        glLightfv(GL_LIGHT0, GL_POSITION, [0,0,0,1])
+        glLightfv(GL_LIGHT0, GL_POSITION, [0, 0, 0, 1])
         glPopMatrix()
 
         pygame.display.flip()
