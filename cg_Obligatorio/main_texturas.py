@@ -11,7 +11,7 @@ def loadTexture(path):
     surf = pygame.image.load(path)
     #Obtengo la matriz de colores de la imagen en forma de un array binario
     #Le indico el formato en que quiero almacenar los datos (RGBA) y que invierta la matriz, para poder usarla correctamente con OpenGL
-    image = pygame.image.tostring(surf, 'RGBA', 1)
+    image = pygame.image.tostring(surf, 'RGBA', 0)
     #Obentego las dimensiones de la imagen
     ix, iy = surf.get_rect().size
     #Creo una textura vacia en memoria de video, y me quedo con el identificador (texid) para poder referenciarla
@@ -19,8 +19,12 @@ def loadTexture(path):
     #Activo esta nueva textura para poder cargarle informacion
     glBindTexture(GL_TEXTURE_2D, texid)
     #Seteo los tipos de filtro a usar para agrandar y achivar la textura
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+#    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+#    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+
     #Cargo la matriz de colores dentro de la textura
     #Los parametros que le paso son:
     # - Tipo de textura, en este caso GL_TEXTURE_2D
@@ -49,11 +53,11 @@ def main():
     
     modelAnimation = []
 
-    rangeAn = 6
+    rangeAn = 40
 
     for i in range(rangeAn):
         modelAn = Obj("model ani #" + str(i))
-        path = "./knight_animado/knight_run_"+str(i)+".obj"
+        path = "./knight_animado/knight_stand_"+str(i)+".obj"
         print(path)
         modelAn.parse(path)
         modelAnimation.append(modelAn)
@@ -132,35 +136,34 @@ def main():
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         glTranslatef(0.0,0.0,-50)
-        glRotatef(250, 0, 1, 0)
+        glRotatef(300, 0, 1, 0)
         glRotatef(0, 0, 0, 1)
         glRotatef(270, 1, 0, 0)
-#        ang = 0.5
+        ang += 0.5
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
-        smallIndex += 1
-        if(smallIndex == 5):
+        smallIndex += 2
+        if(smallIndex >= 2):
             index += 1
             smallIndex = 0
-        
-        if(index == rangeAn):
+
+        if(index >= rangeAn):
             index = 0
+
+        index = 4
 
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_NORMAL_ARRAY)
-        #Habilito el array de coordenadas de textura
         glEnableClientState(GL_TEXTURE_COORD_ARRAY)
 
         glVertexPointer(3, GL_FLOAT, 0, modelAnimation[index].drawV)
         glNormalPointer(GL_FLOAT, 0, modelAnimation[index].drawN)
         glTexCoordPointer(2, GL_FLOAT, 0, modelAnimation[index].drawT)
 
-        #Cargo la textura "text" en la posicion activa (que es la 0 en este ejemplo)
         glBindTexture(GL_TEXTURE_2D, text)
 
         glDrawArrays(GL_TRIANGLES, 0, len(modelAnimation[index].faces))
 
-        #Luego de dibujar, desactivo la textura
         glBindTexture(GL_TEXTURE_2D, 0)
 
         glDisableClientState(GL_VERTEX_ARRAY)
