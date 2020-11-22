@@ -1,3 +1,4 @@
+import numpy
 import pygame
 from pygame.locals import *
 
@@ -6,41 +7,31 @@ from OpenGL.GLU import *
 
 from obj import *
 
+def Ground(ground_vertices):
+    
+    glBegin(GL_QUADS)
+
+    x = 0
+    for vertex in ground_vertices:
+        x+=1
+        glColor3fv((0,1,1))
+        glVertex3fv(vertex)
+        
+    glEnd()
+
 def loadTexture(path):
-    #Cargo la imagen a memoria. pygame se hace cargo de decodificarla correctamente
     surf = pygame.image.load(path)
-    #Obtengo la matriz de colores de la imagen en forma de un array binario
-    #Le indico el formato en que quiero almacenar los datos (RGBA) y que invierta la matriz, para poder usarla correctamente con OpenGL
     image = pygame.image.tostring(surf, 'RGBA', 0)
-    #Obentego las dimensiones de la imagen
     ix, iy = surf.get_rect().size
-    #Creo una textura vacia en memoria de video, y me quedo con el identificador (texid) para poder referenciarla
     texid = glGenTextures(1)
-    #Activo esta nueva textura para poder cargarle informacion
     glBindTexture(GL_TEXTURE_2D, texid)
-    #Seteo los tipos de filtro a usar para agrandar y achivar la textura
-#    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-#    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
-    #Cargo la matriz de colores dentro de la textura
-    #Los parametros que le paso son:
-    # - Tipo de textura, en este caso GL_TEXTURE_2D
-    # - Nivel de mipmap, en este caso 0 porque no estoy usando mas niveles
-    # - Formato en que quiero almacenar los datos en memoria de video, GL_RGB en este caso, porque no necesito canal Alfa
-    # - Ancho de la textura
-    # - Alto de la textura
-    # - Grosor en pixels del borde, en este caso 0 porque no quiero agregar borde a al imagen
-    # - Formato de los datos de la imagen, en este caso GL_RGBA que es como lo leimos con pygame.image
-    # - Formato de los canales de color, GL_UNSIGNED_BYTE quiere decir que son 8bits para cada canal
-    # - La imagen, en este caso la matriz de colores que creamos con pygame.image.tostring
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
-    #Una vez que tengo todo cargado, desactivo la textura para evitar que se dibuje por error mas adelante
-    #Cada vez que quiera usarla, puedo hacer glBindTexture con el identificador (texid) que me guarde al crearla
+
     glBindTexture(GL_TEXTURE_2D, 0)
-    #devuelvo el identificador de la textura para que pueda ser usada mas adelante
     return texid
 
 def main():
@@ -75,10 +66,12 @@ def main():
     #Para el shader, me guardo una referencia a la variable que representa a la textura
 #    unifTextura = glGetUniformLocation(gouraud, 'textura')
 
-    glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, [1,0,0,1])
-    glMaterial(GL_FRONT_AND_BACK, GL_AMBIENT, [1,0,0,1])
-    glMaterial(GL_FRONT_AND_BACK, GL_SPECULAR, [1,1,1,1])
-    glMaterial(GL_FRONT_AND_BACK, GL_SHININESS, 16)
+    glShadeModel(GL_SMOOTH)
+
+#    glMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE, [1,0,0,1])
+#    glMaterial(GL_FRONT_AND_BACK, GL_AMBIENT, [1,0,0,1])
+#    glMaterial(GL_FRONT_AND_BACK, GL_SPECULAR, [1,1,1,1])
+#    glMaterial(GL_FRONT_AND_BACK, GL_SHININESS, 16)
 
     glEnable(GL_LIGHT0)
 
@@ -93,6 +86,19 @@ def main():
     glViewport(0,0,display[0],display[1])
     glFrustum(-1,1,-1,1,1,1000)
 
+    glRotatef(270, 0, 1, 0)
+    glRotatef(0, 0, 0, 1)
+    glRotatef(270, 1, 0, 0)
+
+    ground_surfaces = (0,1,2,3)
+
+    ground_vertices = (
+        (-250,-250,-25),
+        (250,-250,-25),
+        (-250,250,-25),
+        (250,250,-25),
+    )
+
     ang = 0.0
     mode = GL_FILL
     zBuffer = True
@@ -100,6 +106,23 @@ def main():
     bfcCW = True
 #    light = False
     end = False
+    
+    movingX = False
+    movingY = False
+    movingZ = False
+    rotatingZ = False
+    rotatingY = False
+
+    x = -50
+    y = 0
+    rz = 0
+    ry = 0
+
+    tx = 0
+    ty = 0
+    tz = 0
+    az = 0
+    ay = 0
 
     while not end:
         for event in pygame.event.get():
@@ -132,17 +155,85 @@ def main():
                         glFrontFace(GL_CCW)
                 elif event.key == pygame.K_ESCAPE:
                     end = True
-                    
+                if event.key == pygame.K_w:
+                    movingX = False
+                if event.key == pygame.K_s:
+                    movingX = False
+                if event.key == pygame.K_d:
+                    movingY = False
+                if event.key == pygame.K_a:
+                    movingY = False
+                if event.key == pygame.K_UP:
+                    rotatingY = False
+                if event.key == pygame.K_DOWN:
+                    rotatingY = False
+                if event.key == pygame.K_RIGHT:
+                    rotatingZ = False
+                if event.key == pygame.K_LEFT:
+                    rotatingZ = False
+
+
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_w:
+                    movingX = True
+                    tx =  1
+                if event.key == pygame.K_s:
+                    movingX = True
+                    tx = -1
+                if event.key == pygame.K_d:
+                    movingY = True
+                    ty =  1
+                if event.key == pygame.K_a:
+                    movingY = True
+                    ty = -1
+                if event.key == pygame.K_UP:
+                    rotatingY = True
+                    ay =  1
+                if event.key == pygame.K_DOWN:
+                    rotatingY = True
+                    ay = -1
+                if event.key == pygame.K_RIGHT:
+                    rotatingZ = True
+                    az =  1
+                if event.key == pygame.K_LEFT:
+                    rotatingZ = True
+                    az = -1
+
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-        glTranslatef(0.0,0.0,-50)
-        glRotatef(300, 0, 1, 0)
-        glRotatef(0, 0, 0, 1)
-        glRotatef(270, 1, 0, 0)
-        ang += 0.5
+        glTranslatef(x,y,0)
+        glRotatef(rz, 0, 0, 1)
+        glRotatef(ry, 0, 1, 0)
+
+        if movingX:
+            x = x + tx * .6
+            glTranslatef(tx * .6,0,0)
+        if movingY:
+            y = y + ty * .6
+            glTranslatef(0,ty * .6,0)
+        if rotatingZ:
+            rz = rz + az * 2
+            glRotatef(az * 2, 0, 0, 1)
+        if rotatingY:
+            ry = ry + ay * 2
+            glRotatef(ay * 2, 0, 1, 0)
+
+        glPushMatrix()
+        glRotatef(ang, 0,0,1)
+        glTranslatef(0,30,0)
+        glDisable(GL_LIGHTING)
+        glBegin(GL_POINTS)
+        glVertex3fv([5,0,0])
+        glEnd()
+        glEnable(GL_LIGHTING)
+        glLightfv(GL_LIGHT1, GL_POSITION, [0,0,0,1])
+        glPopMatrix()
+
+        ang += 5
+
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
-        smallIndex += 2
+        smallIndex += 1
         if(smallIndex >= 2):
             index += 1
             smallIndex = 0
@@ -151,6 +242,11 @@ def main():
             index = 0
 
         index = 4
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glVertexPointer(3, GL_FLOAT, 0, ground_vertices)
+        glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, ground_surfaces)
+        glDisableClientState(GL_VERTEX_ARRAY)
+
 
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_NORMAL_ARRAY)

@@ -229,6 +229,7 @@ def main():
         #Dibujo un punto para mostrar donde está la fuente de luz
         glDisable(GL_LIGHTING)
         glBegin(GL_POINTS)
+        
         glVertex3fv([0,0,0])
         glEnd()
         glEnable(GL_LIGHTING)
